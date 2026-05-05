@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ERP Integration Accounting Toolkit</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">CE</div>
+      <div>
+        <p>Colliers Engineering & Design</p>
+        <h1>ERP Integration Accounting Toolkit</h1>
+      </div>
+    </div>
+    <nav class="nav" aria-label="Tool sections">
+      <button class="nav-button active" data-section="dashboard">Command Center</button>
+      <button class="nav-button" data-section="discovery">Pre-Migration Discovery</button>
+      <button class="nav-button" data-section="gap">GAP Analysis</button>
+      <button class="nav-button" data-section="timeline">Timeline Builder</button>
+      <button class="nav-button" data-section="validation">Data Validation</button>
+      <button class="nav-button" data-section="training">Training Studio</button>
+      <button class="nav-button" data-section="ideas">Innovation Log</button>
+    </nav>
+    <div class="sidebar-panel">
+      <span class="status-dot"></span>
+      <div>
+        <strong>Integration pulse</strong>
+        <p id="pulseText">Ready for intake</p>
+      </div>
+    </div>
+  </aside>
+
+  <main class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Senior Accountant Workspace</p>
+        <h2 id="sectionTitle">Command Center</h2>
+      </div>
+      <div class="topbar-actions">
+        <label class="search-box">
+          <span>Search</span>
+          <input id="globalSearch" type="search" placeholder="Find tasks, policies, risks">
+        </label>
+        <button class="primary-action" id="exportButton" type="button">Export Brief</button>
+      </div>
+    </header>
+
+    <section class="tool-section active" id="dashboard">
+      <div class="metrics-grid">
+        <article class="metric">
+          <span>Readiness</span>
+          <strong id="readinessScore">74%</strong>
+          <p>Based on completed discovery, GAP decisions, and validation checkpoints.</p>
+        </article>
+        <article class="metric">
+          <span>Open Risks</span>
+          <strong id="riskCount">6</strong>
+          <p>Items requiring Accounting Group or cross-functional resolution.</p>
+        </article>
+        <article class="metric">
+          <span>Training Coverage</span>
+          <strong id="trainingScore">58%</strong>
+          <p>Administrative, billing, accounting, and management audiences scheduled.</p>
+        </article>
+        <article class="metric">
+          <span>Data Confidence</span>
+          <strong id="dataScore">81%</strong>
+          <p>Automated checks plus manual review where conversion exceptions appear.</p>
+        </article>
+      </div>
+
+      <div class="dashboard-grid">
+        <section class="panel wide">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Acquisition Flow</p>
+              <h3>Integration Playbook Progress</h3>
+            </div>
+            <a class="ghost-button" href="#timeline" data-section-jump="timeline">Open Timeline</a>
+          </div>
+          <div class="phase-track" id="phaseTrack"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Today</p>
+              <h3>Priority Tasks</h3>
+            </div>
+          </div>
+          <div class="task-list" id="priorityTasks"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Cross-Functional</p>
+              <h3>Resource Team Map</h3>
+            </div>
+          </div>
+          <div class="team-map" id="teamMap"></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="tool-section" id="discovery">
+      <div class="two-column">
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Meeting Prep</p>
+              <h3>Interview Question Bank</h3>
+            </div>
+          </div>
+          <div class="question-filters" id="questionFilters"></div>
+          <div class="question-list" id="questionList"></div>
+        </section>
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Intake Notes</p>
+              <h3>Policy & Process Capture</h3>
+            </div>
+          </div>
+          <form id="discoveryForm" class="stacked-form">
+            <label>Company or office
+              <input name="company" type="text" placeholder="Acquired company name">
+            </label>
+            <label>Accounting area
+              <select name="area">
+                <option>Revenue recognition</option>
+                <option>Billing and invoicing</option>
+                <option>Accounts payable</option>
+                <option>Payroll allocations</option>
+                <option>Project accounting</option>
+                <option>Month-end close</option>
+              </select>
+            </label>
+            <label>Current practice
+              <textarea name="practice" rows="4" placeholder="Summarize the acquired company's current process"></textarea>
+            </label>
+            <label>Potential ERP impact
+              <textarea name="impact" rows="3" placeholder="Fields, approvals, timing, people, reports"></textarea>
+            </label>
+            <button class="primary-action" type="submit">Add Discovery Note</button>
+          </form>
+          <div class="note-list" id="discoveryNotes"></div>
+        </section>
+      </div>
+      <section class="panel wide intake-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Structured Intake</p>
+            <h3>Accounting Area Question Checklist</h3>
+          </div>
+          <button class="ghost-button" id="resetIntakeChecklist" type="button">Reset Checklist</button>
+        </div>
+        <div class="intake-checklist" id="intakeChecklist"></div>
+      </section>
+    </section>
+
+    <section class="tool-section" id="gap">
+      <section class="panel wide">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Accounting Alignment</p>
+            <h3>GAP Analysis Matrix</h3>
+          </div>
+          <button class="ghost-button" id="addGapRow" type="button">Add GAP Item</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Area</th>
+                <th>Current Practice</th>
+                <th>CED Standard</th>
+                <th>Risk</th>
+                <th>Owner</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="gapTable"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+    <section class="tool-section" id="timeline">
+      <div class="timeline-layout">
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Plan Generator</p>
+              <h3>Migration Timeline Builder</h3>
+            </div>
+          </div>
+          <form id="timelineForm" class="stacked-form">
+            <label>Target go-live date
+              <input name="goLive" type="date">
+            </label>
+            <label>Company size
+              <select name="size">
+                <option value="small">Small team, limited entities</option>
+                <option value="medium" selected>Mid-size, multiple offices</option>
+                <option value="large">Large acquisition, complex operations</option>
+              </select>
+            </label>
+            <label>Conversion complexity
+              <input name="complexity" type="range" min="1" max="5" value="3">
+            </label>
+            <button class="primary-action" type="submit">Generate Timeline</button>
+          </form>
+        </section>
+        <section class="panel wide">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Milestones</p>
+              <h3>Pre-Migration Workplan</h3>
+            </div>
+          </div>
+          <div class="timeline" id="timelineOutput"></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="tool-section" id="validation">
+      <div class="validation-grid">
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Automated Process</p>
+              <h3>Conversion Accuracy Checks</h3>
+            </div>
+          </div>
+          <div class="checklist" id="validationChecklist"></div>
+        </section>
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Manual Entry</p>
+              <h3>Exception Queue</h3>
+            </div>
+            <button class="ghost-button" id="addException" type="button">Add Exception</button>
+          </div>
+          <div class="exception-list" id="exceptionList"></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="tool-section" id="training">
+      <section class="panel wide">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Enablement</p>
+            <h3>Financial Management Training Studio</h3>
+          </div>
+          <button class="ghost-button" id="addTraining" type="button">Add Session</button>
+        </div>
+        <div class="training-grid" id="trainingGrid"></div>
+      </section>
+    </section>
+
+    <section class="tool-section" id="ideas">
+      <div class="two-column">
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Continuous Improvement</p>
+              <h3>Integration Innovation Log</h3>
+            </div>
+          </div>
+          <form id="ideaForm" class="stacked-form">
+            <label>Idea
+              <input name="idea" type="text" placeholder="Improve mapping review, training delivery, close package...">
+            </label>
+            <label>Impact
+              <select name="impact">
+                <option>High impact</option>
+                <option>Medium impact</option>
+                <option>Quick win</option>
+              </select>
+            </label>
+            <label>Notes
+              <textarea name="notes" rows="4" placeholder="What changes, who benefits, what evidence supports it?"></textarea>
+            </label>
+            <button class="primary-action" type="submit">Capture Idea</button>
+          </form>
+        </section>
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Backlog</p>
+              <h3>Process Enhancements</h3>
+            </div>
+          </div>
+          <div class="idea-list" id="ideaList"></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="briefDialog">
+    <div class="dialog-header">
+      <h3>Integration Brief</h3>
+      <button class="icon-button" id="closeDialog" aria-label="Close brief" type="button">x</button>
+    </div>
+    <pre id="briefOutput"></pre>
+  </dialog>
+
+  <script src="script.js"></script>
+</body>
+</html>
