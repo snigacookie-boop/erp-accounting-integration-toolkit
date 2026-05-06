@@ -168,6 +168,8 @@ a {
 
 .topbar-actions {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 12px;
   align-items: end;
 }
@@ -213,6 +215,11 @@ a {
   background: #edf4f3;
   color: #24575c;
   font-weight: 800;
+}
+
+.topbar-actions .primary-action,
+.topbar-actions .ghost-button {
+  min-height: 42px;
 }
 
 .tool-section {
@@ -419,6 +426,56 @@ a {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  margin-bottom: 12px;
+}
+
+.portfolio-card label,
+.decision label,
+.card label,
+.value-item label {
+  display: grid;
+  gap: 5px;
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.portfolio-card input,
+.portfolio-card select,
+.decision input,
+.decision select,
+.decision textarea,
+.card input,
+.card select,
+.card textarea,
+.value-item input,
+.value-item select {
+  width: 100%;
+  min-height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: #fff;
+  color: var(--ink);
+  text-transform: none;
+}
+
+.decision textarea,
+.card textarea {
+  min-height: 78px;
+  resize: vertical;
+}
+
+.mini-danger {
+  min-height: 32px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 10px;
+  background: #fae3de;
+  color: #7f2d20;
+  font-weight: 800;
 }
 
 .portfolio-card dl {

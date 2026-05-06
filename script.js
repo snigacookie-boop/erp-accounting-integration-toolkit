@@ -1,4 +1,6 @@
-const state = {
+const storageKey = "erpIntegrationAccountingToolkit.v2";
+
+const defaultState = {
   phases: [
     {
       name: "Intake",
@@ -248,6 +250,8 @@ const state = {
   ]
 };
 
+let state = loadState();
+
 const sectionTitles = {
   dashboard: "Command Center",
   portfolio: "Acquisition Portfolio",
@@ -265,6 +269,57 @@ const sectionTitles = {
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+
+function cloneDefaultState() {
+  return JSON.parse(JSON.stringify(defaultState));
+}
+
+function mergeState(defaultValue, savedValue) {
+  if (Array.isArray(defaultValue)) return Array.isArray(savedValue) ? savedValue : defaultValue;
+  if (!defaultValue || typeof defaultValue !== "object") return savedValue ?? defaultValue;
+
+  const merged = { ...defaultValue };
+  Object.keys(defaultValue).forEach((key) => {
+    if (savedValue && Object.prototype.hasOwnProperty.call(savedValue, key)) {
+      merged[key] = mergeState(defaultValue[key], savedValue[key]);
+    }
+  });
+  return merged;
+}
+
+function loadState() {
+  try {
+    const savedState = JSON.parse(localStorage.getItem(storageKey));
+    return mergeState(cloneDefaultState(), savedState);
+  } catch {
+    return cloneDefaultState();
+  }
+}
+
+function saveState() {
+  localStorage.setItem(storageKey, JSON.stringify(state));
+}
+
+function rerenderApp() {
+  renderPhases();
+  renderTasks();
+  renderTeam();
+  renderPortfolio();
+  renderDayOne();
+  renderDecisions();
+  renderQuestions();
+  renderIntakeChecklist();
+  renderNotes();
+  renderGaps();
+  renderRisks();
+  renderValidation();
+  renderExceptions();
+  renderTraining();
+  renderStabilization();
+  renderValue();
+  renderIdeas();
+  renderMetrics();
+}
 
 function renderPhases() {
   $("#phaseTrack").innerHTML = state.phases.map((phase) => `
@@ -295,19 +350,20 @@ function renderTeam() {
 }
 
 function renderPortfolio() {
-  $("#portfolioGrid").innerHTML = state.deals.map((deal) => `
+  $("#portfolioGrid").innerHTML = state.deals.map((deal, index) => `
     <article class="portfolio-card searchable">
       <div class="card-topline">
-        <span class="risk-badge ${deal.risk.toLowerCase()}">${deal.risk}</span>
-        <strong>${deal.phase}</strong>
+        <select data-deal-field="${index}-risk" aria-label="Deal risk">
+          ${["Low", "Medium", "High"].map((risk) => `<option ${deal.risk === risk ? "selected" : ""}>${risk}</option>`).join("")}
+        </select>
+        <button class="mini-danger" type="button" data-delete-deal="${index}">Delete</button>
       </div>
-      <h4>${deal.name}</h4>
-      <dl>
-        <div><dt>Close</dt><dd>${deal.closeDate}</dd></div>
-        <div><dt>Go-live</dt><dd>${deal.goLive}</dd></div>
-        <div><dt>Lead</dt><dd>${deal.lead}</dd></div>
-        <div><dt>Blockers</dt><dd>${deal.blockers}</dd></div>
-      </dl>
+      <label>Deal<input data-deal-field="${index}-name" value="${deal.name}"></label>
+      <label>Phase<input data-deal-field="${index}-phase" value="${deal.phase}"></label>
+      <label>Close date<input data-deal-field="${index}-closeDate" value="${deal.closeDate}"></label>
+      <label>Go-live<input data-deal-field="${index}-goLive" value="${deal.goLive}"></label>
+      <label>Lead<input data-deal-field="${index}-lead" value="${deal.lead}"></label>
+      <label>Blockers<input type="number" min="0" data-deal-field="${index}-blockers" value="${deal.blockers}"></label>
     </article>
   `).join("");
 }
@@ -326,12 +382,17 @@ function renderDayOne() {
 }
 
 function renderDecisions() {
-  $("#decisionList").innerHTML = state.decisions.map((decision) => `
+  $("#decisionList").innerHTML = state.decisions.map((decision, index) => `
     <article class="decision searchable">
-      <span class="status-badge">${decision[3]}</span>
-      <h4>${decision[0]}</h4>
-      <p>${decision[1]}</p>
-      <small>Owner: ${decision[2]}</small>
+      <div class="card-topline">
+        <select data-decision-field="${index}-3" aria-label="Decision status">
+          ${["Open", "Approved", "Deferred", "Escalated"].map((status) => `<option ${decision[3] === status ? "selected" : ""}>${status}</option>`).join("")}
+        </select>
+        <button class="mini-danger" type="button" data-delete-decision="${index}">Delete</button>
+      </div>
+      <label>Decision<input data-decision-field="${index}-0" value="${decision[0]}"></label>
+      <label>Summary<textarea rows="3" data-decision-field="${index}-1">${decision[1]}</textarea></label>
+      <label>Owner<input data-decision-field="${index}-2" value="${decision[2]}"></label>
     </article>
   `).join("");
 }
@@ -377,15 +438,15 @@ function renderNotes() {
 }
 
 function renderGaps() {
-  $("#gapTable").innerHTML = state.gaps.map((gap) => {
+  $("#gapTable").innerHTML = state.gaps.map((gap, rowIndex) => {
     const riskClass = gap[3].toLowerCase();
     return `
       <tr class="searchable">
-        <td contenteditable="true">${gap[0]}</td>
-        <td contenteditable="true">${gap[1]}</td>
-        <td contenteditable="true">${gap[2]}</td>
+        <td contenteditable="true" data-gap-cell="${rowIndex}-0">${gap[0]}</td>
+        <td contenteditable="true" data-gap-cell="${rowIndex}-1">${gap[1]}</td>
+        <td contenteditable="true" data-gap-cell="${rowIndex}-2">${gap[2]}</td>
         <td><span class="risk-badge ${riskClass}">${gap[3]}</span></td>
-        <td contenteditable="true">${gap[4]}</td>
+        <td contenteditable="true" data-gap-cell="${rowIndex}-4">${gap[4]}</td>
         <td><span class="status-badge">${gap[5]}</span></td>
       </tr>
     `;
@@ -393,13 +454,13 @@ function renderGaps() {
 }
 
 function renderRisks() {
-  $("#riskTable").innerHTML = state.risks.map((risk) => `
+  $("#riskTable").innerHTML = state.risks.map((risk, rowIndex) => `
     <tr class="searchable">
-      <td contenteditable="true">${risk[0]}</td>
-      <td contenteditable="true">${risk[1]}</td>
+      <td contenteditable="true" data-risk-cell="${rowIndex}-0">${risk[0]}</td>
+      <td contenteditable="true" data-risk-cell="${rowIndex}-1">${risk[1]}</td>
       <td><span class="risk-badge ${risk[2].toLowerCase()}">${risk[2]}</span></td>
-      <td contenteditable="true">${risk[3]}</td>
-      <td contenteditable="true">${risk[4]}</td>
+      <td contenteditable="true" data-risk-cell="${rowIndex}-3">${risk[3]}</td>
+      <td contenteditable="true" data-risk-cell="${rowIndex}-4">${risk[4]}</td>
       <td><span class="status-badge">${risk[5]}</span></td>
     </tr>
   `).join("");
@@ -425,13 +486,18 @@ function renderExceptions() {
 }
 
 function renderStabilization() {
-  $("#stabilizationGrid").innerHTML = state.stabilization.map((item) => `
+  $("#stabilizationGrid").innerHTML = state.stabilization.map((item, index) => `
     <article class="card searchable">
-      <span class="status-badge">${item.status}</span>
-      <h4>${item.deal}</h4>
-      <p><strong>${item.area}</strong></p>
-      <p>${item.notes}</p>
-      <small>Owner: ${item.owner}</small>
+      <div class="card-topline">
+        <select data-stabilization-field="${index}-status" aria-label="Stabilization status">
+          ${["On track", "Watch", "At risk", "Complete"].map((status) => `<option ${item.status === status ? "selected" : ""}>${status}</option>`).join("")}
+        </select>
+        <button class="mini-danger" type="button" data-delete-stabilization="${index}">Delete</button>
+      </div>
+      <label>Deal<input data-stabilization-field="${index}-deal" value="${item.deal}"></label>
+      <label>Area<input data-stabilization-field="${index}-area" value="${item.area}"></label>
+      <label>Owner<input data-stabilization-field="${index}-owner" value="${item.owner}"></label>
+      <label>Notes<textarea rows="3" data-stabilization-field="${index}-notes">${item.notes}</textarea></label>
     </article>
   `).join("");
 }
@@ -448,11 +514,17 @@ function renderTraining() {
 }
 
 function renderValue() {
-  $("#valueList").innerHTML = state.valueItems.map((item) => `
+  $("#valueList").innerHTML = state.valueItems.map((item, index) => `
     <article class="value-item searchable">
-      <span class="status-badge">${item.status}</span>
-      <h4>${item.title}</h4>
-      <p>${item.category}</p>
+      <div class="card-topline">
+        <select data-value-field="${index}-status" aria-label="Value status">
+          ${["New", "Planned", "In progress", "Validated"].map((status) => `<option ${item.status === status ? "selected" : ""}>${status}</option>`).join("")}
+        </select>
+        <button class="mini-danger" type="button" data-delete-value="${index}">Delete</button>
+      </div>
+      <label>Opportunity<input data-value-field="${index}-title" value="${item.title}"></label>
+      <label>Category<input data-value-field="${index}-category" value="${item.category}"></label>
+      <label>Impact<input type="number" data-value-field="${index}-impact" value="${item.impact}"></label>
       <strong>${formatImpact(item)}</strong>
     </article>
   `).join("");
@@ -486,6 +558,19 @@ function formatImpact(item) {
   if (item.category.toLowerCase().includes("software")) return `$${item.impact.toLocaleString()} annual run-rate`;
   if (item.category.toLowerCase().includes("close")) return `${item.impact} day improvement`;
   return `${item.impact}% process coverage`;
+}
+
+function updateIndexedObject(collection, descriptor, value) {
+  const [index, field] = descriptor.split("-");
+  const currentValue = collection[Number(index)][field];
+  collection[Number(index)][field] = typeof currentValue === "number" ? Number(value) : value;
+  saveState();
+}
+
+function updateIndexedArray(collection, descriptor, value) {
+  const [index, column] = descriptor.split("-").map(Number);
+  collection[index][column] = value;
+  saveState();
 }
 
 function generateTimeline(event) {
@@ -594,6 +679,76 @@ Latest process ideas:
 ${state.ideas.map((idea) => `- ${idea.idea} (${idea.impact})`).join("\n")}`;
 }
 
+function csvEscape(value) {
+  const text = String(value ?? "");
+  return `"${text.replaceAll("\"", "\"\"")}"`;
+}
+
+function toCsv(headers, rows) {
+  return [
+    headers.map(csvEscape).join(","),
+    ...rows.map((row) => row.map(csvEscape).join(","))
+  ].join("\n");
+}
+
+function downloadFile(filename, content, type) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function todayStamp() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function downloadBrief() {
+  downloadFile(`erp-integration-brief-${todayStamp()}.txt`, buildBrief(), "text/plain;charset=utf-8");
+}
+
+function exportPortfolioCsv() {
+  const rows = state.deals.map((deal) => [
+    deal.name,
+    deal.phase,
+    deal.closeDate,
+    deal.goLive,
+    deal.lead,
+    deal.risk,
+    deal.blockers
+  ]);
+  downloadFile(
+    `acquisition-portfolio-${todayStamp()}.csv`,
+    toCsv(["Deal", "Phase", "Close Date", "Go-Live", "Lead", "Risk", "Blockers"], rows),
+    "text/csv;charset=utf-8"
+  );
+}
+
+function exportRiskCsv() {
+  downloadFile(
+    `portfolio-risk-register-${todayStamp()}.csv`,
+    toCsv(["Deal", "Risk", "Impact", "Mitigation", "Owner", "Status"], state.risks),
+    "text/csv;charset=utf-8"
+  );
+}
+
+function exportDayOneCsv() {
+  const rows = state.dayOne.map((item, index) => [
+    item[0],
+    state.dayOneAnswers[index] ?? item[1] ? "Complete" : "Open",
+    item[2]
+  ]);
+  downloadFile(
+    `day-1-finance-checklist-${todayStamp()}.csv`,
+    toCsv(["Checklist Item", "Status", "Owner"], rows),
+    "text/csv;charset=utf-8"
+  );
+}
+
 function openBriefDialog() {
   $("#briefOutput").textContent = buildBrief();
   const dialog = $("#briefDialog");
@@ -638,6 +793,7 @@ function bindEvents() {
     const index = event.target.dataset.task;
     if (index !== undefined) {
       state.tasks[index].done = event.target.checked;
+      saveState();
       renderMetrics();
     }
   });
@@ -646,6 +802,7 @@ function bindEvents() {
     const index = event.target.dataset.dayOne;
     if (index !== undefined) {
       state.dayOneAnswers[index] = event.target.checked;
+      saveState();
     }
   });
 
@@ -653,6 +810,7 @@ function bindEvents() {
     const index = event.target.dataset.validation;
     if (index !== undefined) {
       state.validation[index][1] = event.target.checked;
+      saveState();
       renderMetrics();
     }
   });
@@ -661,6 +819,7 @@ function bindEvents() {
     const key = event.target.dataset.intakeQuestion;
     if (key !== undefined) {
       state.intakeAnswers[key] = event.target.checked;
+      saveState();
     }
   });
 
@@ -668,6 +827,7 @@ function bindEvents() {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(event.target));
     state.notes.unshift(data);
+    saveState();
     event.target.reset();
     renderNotes();
   });
@@ -676,12 +836,14 @@ function bindEvents() {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(event.target));
     state.ideas.unshift(data);
+    saveState();
     event.target.reset();
     renderIdeas();
   });
 
   $("#addGapRow").addEventListener("click", () => {
     state.gaps.unshift(["New accounting area", "Legacy practice", "CED standard", "Medium", "Owner", "New"]);
+    saveState();
     renderGaps();
     renderMetrics();
   });
@@ -696,28 +858,92 @@ function bindEvents() {
       risk: "Medium",
       blockers: 0
     });
+    saveState();
+    renderPortfolio();
+    renderMetrics();
+  });
+
+  $("#portfolioGrid").addEventListener("input", (event) => {
+    const field = event.target.dataset.dealField;
+    if (!field) return;
+    updateIndexedObject(state.deals, field, event.target.value);
+    renderMetrics();
+  });
+
+  $("#portfolioGrid").addEventListener("change", (event) => {
+    const field = event.target.dataset.dealField;
+    if (!field) return;
+    updateIndexedObject(state.deals, field, event.target.value);
+    renderMetrics();
+  });
+
+  $("#portfolioGrid").addEventListener("click", (event) => {
+    const index = event.target.dataset.deleteDeal;
+    if (index === undefined) return;
+    state.deals.splice(Number(index), 1);
+    saveState();
     renderPortfolio();
     renderMetrics();
   });
 
   $("#resetDayOne").addEventListener("click", () => {
     state.dayOneAnswers = {};
+    saveState();
     renderDayOne();
   });
 
   $("#addDecision").addEventListener("click", () => {
     state.decisions.unshift(["New finance decision", "Decision summary pending.", "Unassigned", "Open"]);
+    saveState();
+    renderDecisions();
+  });
+
+  $("#decisionList").addEventListener("input", (event) => {
+    const field = event.target.dataset.decisionField;
+    if (!field) return;
+    updateIndexedArray(state.decisions, field, event.target.value);
+  });
+
+  $("#decisionList").addEventListener("change", (event) => {
+    const field = event.target.dataset.decisionField;
+    if (!field) return;
+    updateIndexedArray(state.decisions, field, event.target.value);
+  });
+
+  $("#decisionList").addEventListener("click", (event) => {
+    const index = event.target.dataset.deleteDecision;
+    if (index === undefined) return;
+    state.decisions.splice(Number(index), 1);
+    saveState();
     renderDecisions();
   });
 
   $("#addRisk").addEventListener("click", () => {
     state.risks.unshift(["New deal", "New risk", "Medium", "Mitigation pending.", "Unassigned", "Open"]);
+    saveState();
     renderRisks();
     renderMetrics();
   });
 
+  $("#gapTable").addEventListener("focusout", (event) => {
+    const cell = event.target.dataset.gapCell;
+    if (!cell) return;
+    const [rowIndex, columnIndex] = cell.split("-").map(Number);
+    state.gaps[rowIndex][columnIndex] = event.target.textContent.trim();
+    saveState();
+  });
+
+  $("#riskTable").addEventListener("focusout", (event) => {
+    const cell = event.target.dataset.riskCell;
+    if (!cell) return;
+    const [rowIndex, columnIndex] = cell.split("-").map(Number);
+    state.risks[rowIndex][columnIndex] = event.target.textContent.trim();
+    saveState();
+  });
+
   $("#addException").addEventListener("click", () => {
     state.exceptions.unshift(["New conversion exception", "Record count pending", "Unassigned"]);
+    saveState();
     renderExceptions();
     renderMetrics();
   });
@@ -729,6 +955,7 @@ function bindEvents() {
       status: "Drafting",
       topics: ["Learning objective", "Practice activity", "Support path"]
     });
+    saveState();
     renderTraining();
     renderMetrics();
   });
@@ -741,6 +968,27 @@ function bindEvents() {
       owner: "Unassigned",
       notes: "Support plan pending."
     });
+    saveState();
+    renderStabilization();
+  });
+
+  $("#stabilizationGrid").addEventListener("input", (event) => {
+    const field = event.target.dataset.stabilizationField;
+    if (!field) return;
+    updateIndexedObject(state.stabilization, field, event.target.value);
+  });
+
+  $("#stabilizationGrid").addEventListener("change", (event) => {
+    const field = event.target.dataset.stabilizationField;
+    if (!field) return;
+    updateIndexedObject(state.stabilization, field, event.target.value);
+  });
+
+  $("#stabilizationGrid").addEventListener("click", (event) => {
+    const index = event.target.dataset.deleteStabilization;
+    if (index === undefined) return;
+    state.stabilization.splice(Number(index), 1);
+    saveState();
     renderStabilization();
   });
 
@@ -751,17 +999,53 @@ function bindEvents() {
       impact: 10,
       status: "New"
     });
+    saveState();
+    renderValue();
+  });
+
+  $("#valueList").addEventListener("input", (event) => {
+    const field = event.target.dataset.valueField;
+    if (!field) return;
+    updateIndexedObject(state.valueItems, field, event.target.value);
+  });
+
+  $("#valueList").addEventListener("change", (event) => {
+    const field = event.target.dataset.valueField;
+    if (!field) return;
+    updateIndexedObject(state.valueItems, field, event.target.value);
+    renderValue();
+  });
+
+  $("#valueList").addEventListener("click", (event) => {
+    const index = event.target.dataset.deleteValue;
+    if (index === undefined) return;
+    state.valueItems.splice(Number(index), 1);
+    saveState();
     renderValue();
   });
 
   $("#resetIntakeChecklist").addEventListener("click", () => {
     state.intakeAnswers = {};
+    saveState();
     renderIntakeChecklist();
+  });
+
+  $("#resetDataButton").addEventListener("click", () => {
+    const shouldReset = window.confirm("Reset all toolkit data to the sample starting point?");
+    if (!shouldReset) return;
+    state = cloneDefaultState();
+    saveState();
+    rerenderApp();
+    generateTimeline();
   });
 
   $("#timelineForm").addEventListener("submit", generateTimeline);
   $("#globalSearch").addEventListener("input", (event) => applySearch(event.target.value));
   $("#exportButton").addEventListener("click", openBriefDialog);
+  $("#downloadBriefButton").addEventListener("click", downloadBrief);
+  $("#exportPortfolioButton").addEventListener("click", exportPortfolioCsv);
+  $("#exportRiskButton").addEventListener("click", exportRiskCsv);
+  $("#exportDayOneButton").addEventListener("click", exportDayOneCsv);
   $("#closeDialog").addEventListener("click", closeBriefDialog);
   window.addEventListener("hashchange", () => switchSection(location.hash.slice(1) || "dashboard", false));
 }
@@ -769,25 +1053,8 @@ function bindEvents() {
 function init() {
   const defaultGoLive = new Date(Date.now() + 1000 * 60 * 60 * 24 * 90);
   $("#timelineForm").querySelector("[name='goLive']").value = defaultGoLive.toISOString().slice(0, 10);
-  renderPhases();
-  renderTasks();
-  renderTeam();
-  renderPortfolio();
-  renderDayOne();
-  renderDecisions();
-  renderQuestions();
-  renderIntakeChecklist();
-  renderNotes();
-  renderGaps();
-  renderRisks();
-  renderValidation();
-  renderExceptions();
-  renderTraining();
-  renderStabilization();
-  renderValue();
-  renderIdeas();
+  rerenderApp();
   generateTimeline();
-  renderMetrics();
   bindEvents();
   switchSection(location.hash.slice(1) || "dashboard", false);
 }
