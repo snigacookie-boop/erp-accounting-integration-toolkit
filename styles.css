@@ -233,7 +233,7 @@ a {
 }
 
 .metrics-grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   margin-bottom: 18px;
 }
 
@@ -312,10 +312,13 @@ a {
 .phase,
 .task,
 .team-member,
+.portfolio-card,
 .question,
 .note,
+.decision,
 .exception,
 .idea,
+.value-item,
 .timeline-item {
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -346,10 +349,13 @@ a {
 
 .phase h4,
 .task h4,
+.portfolio-card h4,
 .question h4,
 .note h4,
+.decision h4,
 .exception h4,
 .idea h4,
+.value-item h4,
 .timeline-item h4 {
   margin: 12px 0 7px;
 }
@@ -363,15 +369,29 @@ a {
 
 .task-list,
 .team-map,
+.portfolio-grid,
 .question-list,
 .note-list,
 .checklist,
+.decision-list,
 .exception-list,
 .idea-list,
+.value-list,
+.value-summary,
+.stabilization-grid,
 .timeline,
 .training-grid {
   display: grid;
   gap: 12px;
+}
+
+.portfolio-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.stabilization-grid,
+.value-summary {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .intake-checklist {
@@ -382,13 +402,42 @@ a {
 
 .task,
 .team-member,
+.portfolio-card,
 .question,
 .note,
+.decision,
 .exception,
 .idea,
+.value-item,
 .timeline-item,
 .card {
   padding: 14px;
+}
+
+.card-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.portfolio-card dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 14px 0 0;
+}
+
+.portfolio-card dt {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.portfolio-card dd {
+  margin: 3px 0 0;
+  font-weight: 700;
 }
 
 .task {
@@ -556,6 +605,25 @@ td[contenteditable="true"] {
   margin: 0 0 8px;
 }
 
+.decision p,
+.value-item p {
+  margin: 0 0 10px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.decision small,
+.card small {
+  display: block;
+  margin-top: 10px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.metric.compact {
+  box-shadow: none;
+}
+
 .card ul {
   margin: 12px 0 0;
   padding-left: 18px;
@@ -623,6 +691,9 @@ pre {
   .two-column,
   .validation-grid,
   .timeline-layout,
+  .portfolio-grid,
+  .stabilization-grid,
+  .value-summary,
   .training-grid,
   .intake-checklist {
     grid-template-columns: 1fr 1fr;
@@ -647,6 +718,9 @@ pre {
   .two-column,
   .validation-grid,
   .timeline-layout,
+  .portfolio-grid,
+  .stabilization-grid,
+  .value-summary,
   .training-grid,
   .intake-checklist {
     grid-template-columns: 1fr;

@@ -39,6 +39,43 @@ const state = {
     ["Operations", "Manager adoption, project controls"],
     ["HR / Payroll", "Labor setup, allocations, timing"]
   ],
+  deals: [
+    { name: "Northstar Survey Group", phase: "Discovery", closeDate: "May 31, 2026", goLive: "Sep 14, 2026", lead: "A. Patel", risk: "Medium", blockers: 3 },
+    { name: "Keystone Civil Partners", phase: "GAP Resolution", closeDate: "Apr 18, 2026", goLive: "Aug 03, 2026", lead: "M. Lewis", risk: "High", blockers: 6 },
+    { name: "Harbor Environmental", phase: "Conversion", closeDate: "Mar 22, 2026", goLive: "Jun 29, 2026", lead: "S. Chen", risk: "Medium", blockers: 2 },
+    { name: "Summit Inspection Services", phase: "Stabilization", closeDate: "Feb 07, 2026", goLive: "May 06, 2026", lead: "J. Rivera", risk: "Low", blockers: 1 }
+  ],
+  dayOne: [
+    ["Closing cash position confirmed and documented", true, "Treasury"],
+    ["Bank access, signers, and payment authority reviewed", false, "Treasury"],
+    ["AR collection ownership assigned for first 30 days", true, "AR"],
+    ["AP payment hold, release, and approval rules confirmed", false, "AP"],
+    ["Payroll continuity plan signed off", true, "HR / Payroll"],
+    ["Delegation of authority published to acquired company leaders", false, "Controller"],
+    ["Day 1 billing continuity owner named", false, "Billing"],
+    ["Emergency finance contact list distributed", true, "Integration Lead"]
+  ],
+  dayOneAnswers: {},
+  decisions: [
+    ["AP approvals", "Hold non-critical vendor changes until master data review is complete.", "Controller", "Open"],
+    ["Billing continuity", "Legacy billing format approved for two cycles where client portals require it.", "Billing", "Approved"]
+  ],
+  risks: [
+    ["Keystone Civil Partners", "Revenue recognition policy differs by office", "High", "Run policy workshop and require controller sign-off on open WIP.", "Accounting", "Escalated"],
+    ["Northstar Survey Group", "Customer master contains duplicate parent-child records", "Medium", "Complete duplicate review before trial conversion.", "AR", "In progress"],
+    ["Harbor Environmental", "Billing training conflicts with go-live support week", "Medium", "Split training into manager and billing specialist sessions.", "Training", "Mitigating"],
+    ["Summit Inspection Services", "First close has manual accrual dependency", "Low", "Document recurring entry owner and support file path.", "Close", "Monitoring"]
+  ],
+  stabilization: [
+    { deal: "Summit Inspection Services", area: "First close", status: "On track", owner: "Close Team", notes: "Accrual support complete; reporting tie-out pending." },
+    { deal: "Summit Inspection Services", area: "Billing accuracy", status: "Watch", owner: "Billing", notes: "Two invoices required manual format review." },
+    { deal: "Harbor Environmental", area: "User adoption", status: "At risk", owner: "Operations", notes: "Project managers need second reporting session." }
+  ],
+  valueItems: [
+    { title: "Retire legacy billing tracker", category: "Software/tool elimination", impact: 18000, status: "Planned" },
+    { title: "Standardize close package", category: "Faster close", impact: 2, status: "In progress" },
+    { title: "Centralize vendor onboarding", category: "Control improvement", impact: 35, status: "Validated" }
+  ],
   questions: {
     "Policy": [
       "Which accounting policies differ from Colliers Engineering & Design standards?",
@@ -213,11 +250,16 @@ const state = {
 
 const sectionTitles = {
   dashboard: "Command Center",
+  portfolio: "Acquisition Portfolio",
+  dayone: "Day 1 Finance",
   discovery: "Pre-Migration Discovery",
   gap: "GAP Analysis",
+  risk: "Risk Register",
   timeline: "Timeline Builder",
   validation: "Data Validation",
   training: "Training Studio",
+  stabilization: "Stabilization",
+  value: "Value Capture",
   ideas: "Innovation Log"
 };
 
@@ -248,6 +290,48 @@ function renderTeam() {
     <article class="team-member searchable">
       <strong>${name}</strong>
       <span>${role}</span>
+    </article>
+  `).join("");
+}
+
+function renderPortfolio() {
+  $("#portfolioGrid").innerHTML = state.deals.map((deal) => `
+    <article class="portfolio-card searchable">
+      <div class="card-topline">
+        <span class="risk-badge ${deal.risk.toLowerCase()}">${deal.risk}</span>
+        <strong>${deal.phase}</strong>
+      </div>
+      <h4>${deal.name}</h4>
+      <dl>
+        <div><dt>Close</dt><dd>${deal.closeDate}</dd></div>
+        <div><dt>Go-live</dt><dd>${deal.goLive}</dd></div>
+        <div><dt>Lead</dt><dd>${deal.lead}</dd></div>
+        <div><dt>Blockers</dt><dd>${deal.blockers}</dd></div>
+      </dl>
+    </article>
+  `).join("");
+}
+
+function renderDayOne() {
+  $("#dayOneChecklist").innerHTML = state.dayOne.map((item, index) => {
+    const checked = state.dayOneAnswers[index] ?? item[1];
+    return `
+      <label class="check-item searchable">
+        <input type="checkbox" ${checked ? "checked" : ""} data-day-one="${index}">
+        <strong>${item[0]}</strong>
+        <span>${item[2]}</span>
+      </label>
+    `;
+  }).join("");
+}
+
+function renderDecisions() {
+  $("#decisionList").innerHTML = state.decisions.map((decision) => `
+    <article class="decision searchable">
+      <span class="status-badge">${decision[3]}</span>
+      <h4>${decision[0]}</h4>
+      <p>${decision[1]}</p>
+      <small>Owner: ${decision[2]}</small>
     </article>
   `).join("");
 }
@@ -285,7 +369,7 @@ function renderIntakeChecklist() {
 function renderNotes() {
   $("#discoveryNotes").innerHTML = state.notes.map((note) => `
     <article class="note searchable">
-      <h4>${note.company} · ${note.area}</h4>
+      <h4>${note.company} - ${note.area}</h4>
       <p><strong>Practice:</strong> ${note.practice}</p>
       <p><strong>ERP impact:</strong> ${note.impact}</p>
     </article>
@@ -308,6 +392,19 @@ function renderGaps() {
   }).join("");
 }
 
+function renderRisks() {
+  $("#riskTable").innerHTML = state.risks.map((risk) => `
+    <tr class="searchable">
+      <td contenteditable="true">${risk[0]}</td>
+      <td contenteditable="true">${risk[1]}</td>
+      <td><span class="risk-badge ${risk[2].toLowerCase()}">${risk[2]}</span></td>
+      <td contenteditable="true">${risk[3]}</td>
+      <td contenteditable="true">${risk[4]}</td>
+      <td><span class="status-badge">${risk[5]}</span></td>
+    </tr>
+  `).join("");
+}
+
 function renderValidation() {
   $("#validationChecklist").innerHTML = state.validation.map((item, index) => `
     <label class="check-item searchable">
@@ -322,7 +419,19 @@ function renderExceptions() {
   $("#exceptionList").innerHTML = state.exceptions.map((item) => `
     <article class="exception searchable">
       <h4>${item[0]}</h4>
-      <p>${item[1]} · Owner: ${item[2]}</p>
+      <p>${item[1]} - Owner: ${item[2]}</p>
+    </article>
+  `).join("");
+}
+
+function renderStabilization() {
+  $("#stabilizationGrid").innerHTML = state.stabilization.map((item) => `
+    <article class="card searchable">
+      <span class="status-badge">${item.status}</span>
+      <h4>${item.deal}</h4>
+      <p><strong>${item.area}</strong></p>
+      <p>${item.notes}</p>
+      <small>Owner: ${item.owner}</small>
     </article>
   `).join("");
 }
@@ -338,6 +447,31 @@ function renderTraining() {
   `).join("");
 }
 
+function renderValue() {
+  $("#valueList").innerHTML = state.valueItems.map((item) => `
+    <article class="value-item searchable">
+      <span class="status-badge">${item.status}</span>
+      <h4>${item.title}</h4>
+      <p>${item.category}</p>
+      <strong>${formatImpact(item)}</strong>
+    </article>
+  `).join("");
+
+  const dollarImpact = state.valueItems
+    .filter((item) => item.category.toLowerCase().includes("software"))
+    .reduce((total, item) => total + item.impact, 0);
+  const fasterClose = state.valueItems
+    .filter((item) => item.category.toLowerCase().includes("close"))
+    .reduce((total, item) => total + item.impact, 0);
+  const controlItems = state.valueItems.filter((item) => item.category.toLowerCase().includes("control")).length;
+
+  $("#valueSummary").innerHTML = `
+    <article class="metric compact"><span>Annual tool savings</span><strong>$${dollarImpact.toLocaleString()}</strong></article>
+    <article class="metric compact"><span>Close acceleration</span><strong>${fasterClose} days</strong></article>
+    <article class="metric compact"><span>Control improvements</span><strong>${controlItems}</strong></article>
+  `;
+}
+
 function renderIdeas() {
   $("#ideaList").innerHTML = state.ideas.map((idea) => `
     <article class="idea searchable">
@@ -346,6 +480,12 @@ function renderIdeas() {
       <p>${idea.notes}</p>
     </article>
   `).join("");
+}
+
+function formatImpact(item) {
+  if (item.category.toLowerCase().includes("software")) return `$${item.impact.toLocaleString()} annual run-rate`;
+  if (item.category.toLowerCase().includes("close")) return `${item.impact} day improvement`;
+  return `${item.impact}% process coverage`;
 }
 
 function generateTimeline(event) {
@@ -382,11 +522,14 @@ function renderMetrics() {
   const doneChecks = state.validation.filter((item) => item[1]).length;
   const highRisks = state.gaps.filter((gap) => gap[3] === "High").length + state.exceptions.length;
   const trainingReady = state.training.filter((session) => session.status !== "Needs owner").length;
+  const portfolioHighRisks = state.risks.filter((risk) => risk[2] === "High").length + state.deals.filter((deal) => deal.risk === "High").length;
 
   $("#readinessScore").textContent = `${Math.round(((doneTasks / state.tasks.length) * 35) + ((doneChecks / state.validation.length) * 45) + 20)}%`;
   $("#riskCount").textContent = String(highRisks);
   $("#trainingScore").textContent = `${Math.round((trainingReady / state.training.length) * 100)}%`;
   $("#dataScore").textContent = `${Math.round((doneChecks / state.validation.length) * 100)}%`;
+  $("#dealCount").textContent = String(state.deals.length);
+  $("#portfolioRiskScore").textContent = portfolioHighRisks > 1 ? "High" : portfolioHighRisks === 1 ? "Med" : "Low";
   $("#pulseText").textContent = highRisks > 4 ? "Risks need attention" : "Integration on track";
 }
 
@@ -413,12 +556,27 @@ function buildBrief() {
   const openTasks = state.tasks.filter((task) => !task.done).map((task) => `- ${task.label}`).join("\n");
   const openChecks = state.validation.filter((item) => !item[1]).map((item) => `- ${item[0]} (${item[2]})`).join("\n");
   const highGaps = state.gaps.filter((gap) => gap[3] === "High").map((gap) => `- ${gap[0]}: ${gap[1]} -> ${gap[2]}`).join("\n");
+  const activeDeals = state.deals.map((deal) => `- ${deal.name}: ${deal.phase}, ${deal.risk} risk, ${deal.blockers} blockers`).join("\n");
+  const executiveRisks = state.risks.filter((risk) => risk[2] === "High").map((risk) => `- ${risk[0]}: ${risk[1]} | ${risk[3]}`).join("\n");
+  const dayOneOpen = state.dayOne.filter((item, index) => !(state.dayOneAnswers[index] ?? item[1])).map((item) => `- ${item[0]} (${item[2]})`).join("\n");
+  const stabilizationWatch = state.stabilization.filter((item) => item.status !== "On track").map((item) => `- ${item.deal}: ${item.area} is ${item.status}`).join("\n");
   return `ERP Integration Accounting Brief
 
 Readiness: ${$("#readinessScore").textContent}
 Open risks: ${$("#riskCount").textContent}
 Training coverage: ${$("#trainingScore").textContent}
 Data confidence: ${$("#dataScore").textContent}
+Active deals: ${$("#dealCount").textContent}
+Portfolio risk: ${$("#portfolioRiskScore").textContent}
+
+Active acquisition portfolio:
+${activeDeals || "- None"}
+
+Executive risks:
+${executiveRisks || "- None"}
+
+Day 1 finance open items:
+${dayOneOpen || "- None"}
 
 Priority open tasks:
 ${openTasks || "- None"}
@@ -428,6 +586,9 @@ ${highGaps || "- None"}
 
 Open validation checks:
 ${openChecks || "- None"}
+
+Stabilization watch list:
+${stabilizationWatch || "- None"}
 
 Latest process ideas:
 ${state.ideas.map((idea) => `- ${idea.idea} (${idea.impact})`).join("\n")}`;
@@ -481,6 +642,13 @@ function bindEvents() {
     }
   });
 
+  $("#dayOneChecklist").addEventListener("change", (event) => {
+    const index = event.target.dataset.dayOne;
+    if (index !== undefined) {
+      state.dayOneAnswers[index] = event.target.checked;
+    }
+  });
+
   $("#validationChecklist").addEventListener("change", (event) => {
     const index = event.target.dataset.validation;
     if (index !== undefined) {
@@ -518,6 +686,36 @@ function bindEvents() {
     renderMetrics();
   });
 
+  $("#addDeal").addEventListener("click", () => {
+    state.deals.unshift({
+      name: "New Acquisition",
+      phase: "Intake",
+      closeDate: "TBD",
+      goLive: "TBD",
+      lead: "Unassigned",
+      risk: "Medium",
+      blockers: 0
+    });
+    renderPortfolio();
+    renderMetrics();
+  });
+
+  $("#resetDayOne").addEventListener("click", () => {
+    state.dayOneAnswers = {};
+    renderDayOne();
+  });
+
+  $("#addDecision").addEventListener("click", () => {
+    state.decisions.unshift(["New finance decision", "Decision summary pending.", "Unassigned", "Open"]);
+    renderDecisions();
+  });
+
+  $("#addRisk").addEventListener("click", () => {
+    state.risks.unshift(["New deal", "New risk", "Medium", "Mitigation pending.", "Unassigned", "Open"]);
+    renderRisks();
+    renderMetrics();
+  });
+
   $("#addException").addEventListener("click", () => {
     state.exceptions.unshift(["New conversion exception", "Record count pending", "Unassigned"]);
     renderExceptions();
@@ -533,6 +731,27 @@ function bindEvents() {
     });
     renderTraining();
     renderMetrics();
+  });
+
+  $("#addStabilizationItem").addEventListener("click", () => {
+    state.stabilization.unshift({
+      deal: "New acquisition",
+      area: "Stabilization area",
+      status: "Watch",
+      owner: "Unassigned",
+      notes: "Support plan pending."
+    });
+    renderStabilization();
+  });
+
+  $("#addValueItem").addEventListener("click", () => {
+    state.valueItems.unshift({
+      title: "New value opportunity",
+      category: "Control improvement",
+      impact: 10,
+      status: "New"
+    });
+    renderValue();
   });
 
   $("#resetIntakeChecklist").addEventListener("click", () => {
@@ -553,13 +772,19 @@ function init() {
   renderPhases();
   renderTasks();
   renderTeam();
+  renderPortfolio();
+  renderDayOne();
+  renderDecisions();
   renderQuestions();
   renderIntakeChecklist();
   renderNotes();
   renderGaps();
+  renderRisks();
   renderValidation();
   renderExceptions();
   renderTraining();
+  renderStabilization();
+  renderValue();
   renderIdeas();
   generateTimeline();
   renderMetrics();

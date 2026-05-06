@@ -17,11 +17,16 @@
     </div>
     <nav class="nav" aria-label="Tool sections">
       <button class="nav-button active" data-section="dashboard">Command Center</button>
+      <button class="nav-button" data-section="portfolio">Acquisition Portfolio</button>
+      <button class="nav-button" data-section="dayone">Day 1 Finance</button>
       <button class="nav-button" data-section="discovery">Pre-Migration Discovery</button>
       <button class="nav-button" data-section="gap">GAP Analysis</button>
+      <button class="nav-button" data-section="risk">Risk Register</button>
       <button class="nav-button" data-section="timeline">Timeline Builder</button>
       <button class="nav-button" data-section="validation">Data Validation</button>
       <button class="nav-button" data-section="training">Training Studio</button>
+      <button class="nav-button" data-section="stabilization">Stabilization</button>
+      <button class="nav-button" data-section="value">Value Capture</button>
       <button class="nav-button" data-section="ideas">Innovation Log</button>
     </nav>
     <div class="sidebar-panel">
@@ -70,6 +75,16 @@
           <strong id="dataScore">81%</strong>
           <p>Automated checks plus manual review where conversion exceptions appear.</p>
         </article>
+        <article class="metric">
+          <span>Active Deals</span>
+          <strong id="dealCount">4</strong>
+          <p>Open acquisitions moving through intake, migration, go-live, or stabilization.</p>
+        </article>
+        <article class="metric">
+          <span>Portfolio Risk</span>
+          <strong id="portfolioRiskScore">Med</strong>
+          <p>Highest-current exposure across deal readiness, controls, timing, and resources.</p>
+        </article>
       </div>
 
       <div class="dashboard-grid">
@@ -102,6 +117,44 @@
             </div>
           </div>
           <div class="team-map" id="teamMap"></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="tool-section" id="portfolio">
+      <section class="panel wide">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Holding Company View</p>
+            <h3>Acquisition Portfolio Dashboard</h3>
+          </div>
+          <button class="ghost-button" id="addDeal" type="button">Add Deal</button>
+        </div>
+        <div class="portfolio-grid" id="portfolioGrid"></div>
+      </section>
+    </section>
+
+    <section class="tool-section" id="dayone">
+      <div class="two-column">
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Close Readiness</p>
+              <h3>Day 1 Finance Checklist</h3>
+            </div>
+            <button class="ghost-button" id="resetDayOne" type="button">Reset</button>
+          </div>
+          <div class="checklist" id="dayOneChecklist"></div>
+        </section>
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Immediate Controls</p>
+              <h3>Decision Log</h3>
+            </div>
+            <button class="ghost-button" id="addDecision" type="button">Add Decision</button>
+          </div>
+          <div class="decision-list" id="decisionList"></div>
         </section>
       </div>
     </section>
@@ -189,6 +242,33 @@
       </section>
     </section>
 
+    <section class="tool-section" id="risk">
+      <section class="panel wide">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Executive Attention</p>
+            <h3>Portfolio Risk Register</h3>
+          </div>
+          <button class="ghost-button" id="addRisk" type="button">Add Risk</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Deal</th>
+                <th>Risk</th>
+                <th>Impact</th>
+                <th>Mitigation</th>
+                <th>Owner</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="riskTable"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
     <section class="tool-section" id="timeline">
       <div class="timeline-layout">
         <section class="panel">
@@ -262,6 +342,43 @@
         </div>
         <div class="training-grid" id="trainingGrid"></div>
       </section>
+    </section>
+
+    <section class="tool-section" id="stabilization">
+      <section class="panel wide">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Post-Go-Live</p>
+            <h3>Stabilization Tracker</h3>
+          </div>
+          <button class="ghost-button" id="addStabilizationItem" type="button">Add Item</button>
+        </div>
+        <div class="stabilization-grid" id="stabilizationGrid"></div>
+      </section>
+    </section>
+
+    <section class="tool-section" id="value">
+      <div class="two-column">
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Value Creation</p>
+              <h3>Synergy & Process Value Tracker</h3>
+            </div>
+            <button class="ghost-button" id="addValueItem" type="button">Add Value Item</button>
+          </div>
+          <div class="value-list" id="valueList"></div>
+        </section>
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Leadership</p>
+              <h3>Value Summary</h3>
+            </div>
+          </div>
+          <div class="value-summary" id="valueSummary"></div>
+        </section>
+      </div>
     </section>
 
     <section class="tool-section" id="ideas">
