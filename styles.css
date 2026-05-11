@@ -733,6 +733,10 @@ pre {
   display: none;
 }
 
+.print-report {
+  display: none;
+}
+
 @media (max-width: 1100px) {
   body {
     grid-template-columns: 1fr;
@@ -781,5 +785,108 @@ pre {
   .training-grid,
   .intake-checklist {
     grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  body {
+    display: block;
+    background: #fff;
+    color: #111;
+  }
+
+  .sidebar,
+  .app-shell,
+  dialog {
+    display: none !important;
+  }
+
+  .print-report {
+    display: block;
+    padding: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+  }
+
+  .print-header {
+    border-bottom: 2px solid #111;
+    padding-bottom: 16px;
+    margin-bottom: 18px;
+  }
+
+  .print-header p {
+    margin: 0 0 6px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .print-header h1 {
+    margin: 0 0 6px;
+    font-size: 1.7rem;
+  }
+
+  .print-header span {
+    color: #555;
+  }
+
+  .print-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .print-metrics article {
+    border: 1px solid #999;
+    padding: 10px;
+  }
+
+  .print-metrics span {
+    display: block;
+    color: #555;
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .print-metrics strong {
+    display: block;
+    margin-top: 6px;
+    font-size: 1.3rem;
+  }
+
+  .print-report section {
+    break-inside: avoid;
+    margin-bottom: 18px;
+  }
+
+  .print-report h2 {
+    margin: 0 0 8px;
+    font-size: 1.05rem;
+  }
+
+  .print-report table {
+    min-width: 0;
+    font-size: 0.82rem;
+  }
+
+  .print-report th,
+  .print-report td {
+    border: 1px solid #999;
+    padding: 7px;
+  }
+
+  .print-report ul {
+    margin: 0;
+    padding-left: 18px;
+  }
+
+  .print-report li {
+    margin-bottom: 7px;
+    line-height: 1.35;
+  }
+
+  .print-report span {
+    color: #555;
   }
 }

@@ -749,6 +749,72 @@ function exportDayOneCsv() {
   );
 }
 
+function buildReportSection(title, items) {
+  return `
+    <section>
+      <h2>${title}</h2>
+      ${items.length ? `<ul>${items.map((item) => `<li>${item}</li>`).join("")}</ul>` : "<p>No items.</p>"}
+    </section>
+  `;
+}
+
+function renderPrintReport() {
+  const highRisks = state.risks
+    .filter((risk) => risk[2] === "High")
+    .map((risk) => `<strong>${risk[0]}</strong>: ${risk[1]}<br><span>${risk[3]}</span>`);
+  const dayOneOpen = state.dayOne
+    .filter((item, index) => !(state.dayOneAnswers[index] ?? item[1]))
+    .map((item) => `<strong>${item[2]}</strong>: ${item[0]}`);
+  const stabilizationWatch = state.stabilization
+    .filter((item) => item.status !== "On track")
+    .map((item) => `<strong>${item.deal}</strong>: ${item.area} - ${item.status}`);
+  const valueItems = state.valueItems
+    .map((item) => `<strong>${item.title}</strong>: ${formatImpact(item)} (${item.status})`);
+
+  $("#printReport").innerHTML = `
+    <div class="print-header">
+      <p>Executive Integration Report</p>
+      <h1>ERP Accounting Integration Portfolio</h1>
+      <span>Generated ${new Date().toLocaleDateString()}</span>
+    </div>
+    <div class="print-metrics">
+      <article><span>Readiness</span><strong>${$("#readinessScore").textContent}</strong></article>
+      <article><span>Open Risks</span><strong>${$("#riskCount").textContent}</strong></article>
+      <article><span>Active Deals</span><strong>${$("#dealCount").textContent}</strong></article>
+      <article><span>Portfolio Risk</span><strong>${$("#portfolioRiskScore").textContent}</strong></article>
+    </div>
+    <section>
+      <h2>Acquisition Portfolio</h2>
+      <table>
+        <thead>
+          <tr><th>Deal</th><th>Phase</th><th>Go-Live</th><th>Lead</th><th>Risk</th><th>Blockers</th></tr>
+        </thead>
+        <tbody>
+          ${state.deals.map((deal) => `
+            <tr>
+              <td>${deal.name}</td>
+              <td>${deal.phase}</td>
+              <td>${deal.goLive}</td>
+              <td>${deal.lead}</td>
+              <td>${deal.risk}</td>
+              <td>${deal.blockers}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </section>
+    ${buildReportSection("Executive Risks", highRisks)}
+    ${buildReportSection("Day 1 Finance Open Items", dayOneOpen)}
+    ${buildReportSection("Stabilization Watch List", stabilizationWatch)}
+    ${buildReportSection("Value Capture", valueItems)}
+  `;
+}
+
+function printExecutiveReport() {
+  renderPrintReport();
+  window.print();
+}
+
 function openBriefDialog() {
   $("#briefOutput").textContent = buildBrief();
   const dialog = $("#briefDialog");
@@ -1042,6 +1108,7 @@ function bindEvents() {
   $("#timelineForm").addEventListener("submit", generateTimeline);
   $("#globalSearch").addEventListener("input", (event) => applySearch(event.target.value));
   $("#exportButton").addEventListener("click", openBriefDialog);
+  $("#printReportButton").addEventListener("click", printExecutiveReport);
   $("#downloadBriefButton").addEventListener("click", downloadBrief);
   $("#exportPortfolioButton").addEventListener("click", exportPortfolioCsv);
   $("#exportRiskButton").addEventListener("click", exportRiskCsv);

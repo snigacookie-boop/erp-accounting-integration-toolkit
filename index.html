@@ -50,6 +50,7 @@
           <input id="globalSearch" type="search" placeholder="Find tasks, policies, risks">
         </label>
         <button class="primary-action" id="exportButton" type="button">Export Brief</button>
+        <button class="ghost-button" id="printReportButton" type="button">Print Report</button>
         <button class="ghost-button" id="downloadBriefButton" type="button">Download Brief</button>
         <button class="ghost-button" id="exportPortfolioButton" type="button">Portfolio CSV</button>
         <button class="ghost-button" id="exportRiskButton" type="button">Risk CSV</button>
@@ -432,6 +433,8 @@
     </div>
     <pre id="briefOutput"></pre>
   </dialog>
+
+  <section class="print-report" id="printReport" aria-label="Executive integration report"></section>
 
   <script src="script.js"></script>
 </body>
